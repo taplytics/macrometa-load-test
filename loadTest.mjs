@@ -1,16 +1,16 @@
 import axios from 'axios'
 import pmap from 'p-map'
 
-const testSize = 1000
-const parallelism = 10
+const testSize = 10000
+const parallelism = 1
 
 // change the prefix to isolate from other tests
-let userIdPrefx = 'some-string'
+let userIdPrefx = 'j-15'
 
 const waitAfterWriting = false
 
-// const base = 'https://macrometa-load-test.taplytics.workers.dev'
-const base = 'http://127.0.0.1:8787'
+const base = 'https://macrometa-load-test.taplytics.workers.dev'
+// const base = 'http://127.0.0.1:8787'
 
 let retrieveTime = 0
 let regionalRetrieveTime = 0
@@ -40,14 +40,14 @@ async function write(i) {
     let startTime = Date.now()
     try {
         const update = await axios.post(writeUrl.href, entityData, {
-            params: {user_id: `${userIdPrefx}-user_id-${i}`},
+            params: {unique_id: `${userIdPrefx}-user-id-${i}`},
             validateStatus: (status) => status === 200 || status === 201
         })
         updateTime += update.data.time
         realUpdateTime += Date.now() - startTime
     } catch (e) {
         console.error('request failed')
-        console.log(e.response.data)
+        console.log(JSON.stringify(e))
     }
 }
 
@@ -55,44 +55,44 @@ async function read(i) {
     const readUrl = new URL('/macro-get', base)
     let startTime = Date.now()
     try {
-        const retrieve = await axios.get(readUrl.href, {params: {user_id: `${userIdPrefx}-user_id-${i}`},
+        const retrieve = await axios.get(readUrl.href, {params: {unique_id: `${userIdPrefx}-user_id-${i}`},
             validateStatus: (status) => status === 200 || status === 201
         })
         retrieveTime += retrieve.data.time
         realRetrieveTime += Date.now() - startTime
     } catch (e) {
         console.error('request failed')
-        console.log(e.response.data)
+        console.log(JSON.stringify(e))
     }
 }
 
 async function writeRegional(i) {
-    const writeUrl = new URL('/macro-update-regional', base)
+    const writeUrl = new URL('/macro-regional-update', base)
     let startTime = Date.now()
     try {
-        const update = await axios.post(writeUrl.href, entityData, {params: {user_id: `${userIdPrefx}-user_id-${i}`},
+        const update = await axios.post(writeUrl.href, entityData, {params: {unique_id: `${userIdPrefx}-user_id-${i}`},
             validateStatus: (status) => status === 200 || status === 201
         })
         regionalUpdateTime += update.data.time
         realRegionalUpdateTime += Date.now() - startTime
     } catch (e) {
         console.error('request failed')
-        console.log(e.response.data)
+        console.log(JSON.stringify(e))
     }
 }
 
 async function readRegional(i) {
-    const readUrl = new URL('/macro-get-regional', base)
+    const readUrl = new URL('/macro-regional-get', base)
     let startTime = Date.now()
     try {
-        const retrieve = await axios.get(readUrl.href, {params: {user_id: `${userIdPrefx}-user_id-${i}`},
+        const retrieve = await axios.get(readUrl.href, {params: {unique_id: `${userIdPrefx}-user_id-${i}`},
             validateStatus: (status) => status === 200 || status === 201
         })
         regionalRetrieveTime += retrieve.data.time
         realRegionalRetrieveTime += Date.now() - startTime
     } catch (e) {
         console.error('request failed')
-        console.log(e.response.data)
+        console.log(JSON.stringify(e))
     }
 }
 
@@ -103,7 +103,7 @@ async function nothing() {
         await axios.get(nothingUrl.href)
     } catch (e) {
         console.error('request failed')
-        console.log(e.response.data)
+        console.log(JSON.stringify(e))
     }
     realNothingTime += Date.now() - startTime
 }

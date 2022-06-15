@@ -16,10 +16,10 @@ exports.handlers = {
 
         const macrometa = new Macrometa()
 
-        const user_id = url.searchParams?.get('user_id') || ''
+        const unique_id = url.searchParams?.get('unique_id') || ''
 
-        if (!user_id) {
-            const response = new Response("user_id is required", {status: 4000})
+        if (!unique_id) {
+            const response = new Response("unique_id is required", {status: 4000})
             return response
         }
 
@@ -30,19 +30,21 @@ exports.handlers = {
                 await macrometa.initialize()
                 initialized = true
                 if (url.pathname.includes('macro-get')) {
-                    data = await macrometa.readData(user_id)
+                    data = await macrometa.getEntity(unique_id)
                 } else if (url.pathname.includes('macro-update')) {
                     const body = await request.json()
-                    await macrometa.insertData(user_id, body)
-                } else if (url.pathname.includes('macro-get-regional')) {
-                    data = await macrometa.readDataFromDiffRegion(user_id)
-                } else if (url.pathname.includes('macro-update-regional')) {
+                    console.log('BODY', JSON.stringify(body))
+                    await macrometa.updateEntity(unique_id, body)
+                } else if (url.pathname.includes('macro-regional-get')) {
+                    data = await macrometa.getRegionEntity(unique_id)
+                } else if (url.pathname.includes('macro-regional-update')) {
                     const body = await request.json()
-                    await macrometa.insertDataInRegion(user_id, body)
+                    console.log('BODY', JSON.stringify(body))
+                    await macrometa.updateRegionEntity(unique_id, body)
                 }
             }
         } catch (e) {
-            console.error(e)
+            console.error(JSON.stringify(e.response))
             const response = new Response(`macrometa error: ${e.response?.body?.errorMessage}, regular error: ${e.message}, initialized: ${initialized}`,
                 {status: 500}
             )
