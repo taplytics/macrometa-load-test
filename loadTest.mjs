@@ -1,7 +1,7 @@
 import axios from 'axios'
 import pmap from 'p-map'
 
-const testSize = 10000
+const testSize = 1000
 const parallelism = 1
 
 // change the prefix to isolate from other tests
